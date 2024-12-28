@@ -38,6 +38,7 @@ func readCsvFile(filepath string) [][]string {
 	if err != nil {
 		log.Fatalf("unable to read input file"+filepath, err)
 	}
+	defer file.Close()
 	csvReader := csv.NewReader(file)
 	records, err := csvReader.ReadAll()
 	if err != nil {
@@ -77,7 +78,7 @@ func getPendingTasks(records [][]string) {
 	isCompleteIndex := -1
 
 	for i, col := range header {
-		if col == "IsComplete" {
+		if col == "Done" {
 			isCompleteIndex = i
 			break
 		}
