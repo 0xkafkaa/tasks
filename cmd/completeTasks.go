@@ -14,14 +14,14 @@ var completeTasksCmd = &cobra.Command{
 	Long: `Complete a task from the task list based on the task ID.
 	For example:
 	
-	task complete <taskid>
-	task complete 34`,
+	task complete -t <taskid>
+	task complete -t 34`,
 	Run: completeTasks,
 }
 
 func completeTasks(cmd *cobra.Command, args []string) {
 	taskID, _ := cmd.Flags().GetString("task-id")
-	fmt.Println("Task has been marked completed")
+
 	records := readCsvFile("/home/mklno/projects/tasks/tasks.csv")
 	updateId := taskID
 
@@ -32,11 +32,19 @@ func completeTasks(cmd *cobra.Command, args []string) {
 			break
 		}
 	}
+	// file, _ := os.Create("/home/mklno/projects/tasks/tasks.csv")
+	// defer file.Close()
+	// csvWriter := csv.NewWriter(file)
+	// csvWriter.WriteAll(records)
+	updateCSV(records)
+	fmt.Println("Task has been marked completed")
+}
+
+func updateCSV(records [][]string) {
 	file, _ := os.Create("/home/mklno/projects/tasks/tasks.csv")
 	defer file.Close()
 	csvWriter := csv.NewWriter(file)
 	csvWriter.WriteAll(records)
-
 }
 func init() {
 	rootCmd.AddCommand(completeTasksCmd)
