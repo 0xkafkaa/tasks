@@ -6,7 +6,9 @@ import (
 	"log"
 	"os"
 	"text/tabwriter"
+	"time"
 
+	"github.com/mergestat/timediff"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +18,7 @@ var listTasksCmd = &cobra.Command{
 	Long: `List all tasks.
 For example:
 
-tasks list 	  => List all pending tasks.
+tasks list => List all pending tasks.
 tasks list -a => List all tasks.`,
 	Run: listTasks,
 }
@@ -24,7 +26,6 @@ tasks list -a => List all tasks.`,
 func listTasks(cmd *cobra.Command, args []string) {
 	isAllTasks, _ := cmd.Flags().GetBool("all-tasks")
 	records := readCsvFile("/home/mklno/projects/tasks/tasks.csv")
-
 	if isAllTasks {
 		getAllTasks(records)
 	} else {
@@ -47,10 +48,16 @@ func readCsvFile(filepath string) [][]string {
 
 func formatRecords(records [][]string) {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 4, ' ', 0)
+	layout := "2006-01-02T15:04:05-07:00"
 	for _, outer := range records {
 		var content string
-		for _, value := range outer {
-			content += value
+		for j, value := range outer {
+			if j == 2 && value != "Created" {
+				timestamp, _ := time.Parse(layout, value)
+				content += timediff.TimeDiff(timestamp)
+			} else {
+				content += value
+			}
 			content += "\t"
 		}
 		fmt.Fprintln(w, content)
